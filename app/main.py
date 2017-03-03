@@ -1,11 +1,19 @@
 import bottle
 import os
 import random
+from primary import *
 
+#Global Variables
+FREE_SPACE = 0
+MY_SNAKE = 1
+ENEMY_HEAD = 2
+ENEMY_BODY = 3
+FOOD = 4
 
 @bottle.route('/static/<path:path>')
 def static(path):
     return bottle.static_file(path, root='static/')
+
 
 
 @bottle.post('/start')
@@ -29,16 +37,31 @@ def start():
         'name': 'battlesnake-python'
     }
 
+def snakeHead(snakes, mySnakeUID):
+    for snake in snakes:
+        if (mySnakeUID == snake['coords']):
+            return snakes['coords'][0];
+
+
+
+def safepath(data):
+
+    sneakHead, grid = initGrid(data)
+    directions = ['up', 'down', 'left', 'right']
+    for temp in directions:
+        if (safeTile(sneakHead, grid, temp )):
+            return temp
+
+    return random.choice(directions);
+
 
 @bottle.post('/move')
 def move():
     data = bottle.request.json
 
-    # TODO: Do things with data
-    directions = ['up', 'down', 'left', 'right']
 
     return {
-        'move': random.choice(directions),
+        'move': safepath(data)
         'taunt': 'battlesnake-python!'
     }
 
